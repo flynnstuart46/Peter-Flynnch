@@ -285,7 +285,7 @@
       ${p.description ? `<p class="muted" style="margin:-6px 0 16px">${esc(p.description)}</p>` : ""}
       ${empty ? `<div class="note info">This portfolio has no positions yet. Add them in <code>data/portfolios.json</code>.</div>` : ""}
       <div class="tiles">
-        <div class="tile"><div class="label">Value</div><div class="value">${money(p.value)}</div><div class="sub">incl. ${money(p.cash)} cash</div></div>
+        <div class="tile"><div class="label">Value</div><div class="value">${money(p.value)}</div><div class="sub">incl. ${money(p.cash)} cash${p.net_deposits ? ` · ${signed(p.net_deposits)} added` : ""}</div></div>
         <div class="tile"><div class="label">Today</div><div class="value ${cls(p.day_pct)}">${pct(p.day_pct, 2)}</div><div class="sub">S&amp;P 500 ${pct(benchDay(), 2)}</div></div>
         <div class="tile"><div class="label">Since ${new Date(p.start_date + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</div>
           <div class="value ${cls(since?.port)}">${pct(since?.port)}</div><div class="sub">S&amp;P 500 ${pct(since?.bench)}</div></div>
@@ -300,7 +300,9 @@
         <div class="card"><h2>Holdings</h2>${holdingsTable(p)}</div>
         <div class="card"><h2>Allocation by sector</h2>${allocation(p)}</div>
       </div>
-      ${p.closed.length ? `<div class="card" style="margin-top:18px"><h2>Closed positions</h2>${closedTable(p)}</div>` : ""}`;
+      ${p.closed.length ? `<div class="card" style="margin-top:18px"><h2>Closed positions</h2>${closedTable(p)}</div>` : ""}
+      ${(p.cash_activity || []).length ? `<div class="card" style="margin-top:18px"><div class="card-head"><h2>Cash added and withdrawn</h2>
+        <span class="small muted">Cash balance now ${money(p.cash, 2)}</span></div>${cashTable(p)}</div>` : ""}`;
     const canvas = el.querySelector("canvas");
     let chart;
     const draw = range => {
@@ -338,6 +340,17 @@
       <div>${esc(a.sector)}</div>
       <div class="alloc-track"><div class="alloc-fill" style="width:${max ? (a.weight / max * 100).toFixed(1) : 0}%"></div></div>
       <div class="pct">${pct(a.weight).replace("+", "")}</div></div>`).join("");
+  }
+
+  function cashTable(p) {
+    return `<div class="tablewrap"><table>
+      <thead><tr><th>Date</th><th class="l">Type</th><th class="l">Note</th><th>Amount</th></tr></thead>
+      <tbody>${p.cash_activity.map(f => `<tr>
+        <td>${new Date(f.date + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</td>
+        <td class="l">${f.amount >= 0 ? "Deposit" : "Withdrawal"}</td><td class="l muted">${esc(f.note)}</td>
+        <td class="${cls(f.amount)}">${f.amount >= 0 ? "+" : "−"}${money(Math.abs(f.amount), 2)}</td></tr>`).join("")}
+      </tbody></table></div>
+      <div class="small muted" style="margin-top:8px">Deposits and withdrawals don't count toward returns. Buying uses cash and selling adds to it.</div>`;
   }
 
   function closedTable(p) {
