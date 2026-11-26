@@ -17,11 +17,14 @@
     --accent: #1b64be;
     --pos: #00731a;
     --neg: #c62f30;
-    --series-1: #257de0; --series-2: #f47230; --series-3: #00b894; --series-4: #6a4ce2;
-    --series-5: #ee7fac; --series-6: #008a17; --series-7: #f2a600; --series-8: #ec4647;
+    --series-1: #257de0; --series-2: #f47230; --series-3: #00b894; --series-4: #f2a600;
+    --series-5: #ee7fac; --series-6: #008a17; --series-7: #6a4ce2; --series-8: #ec4647;
+    --series-9: #0e8a8a; --series-10: #a17d00;
     --bench: #8a8a8a;
     --bar: #257de0;
     --chip: #efefec;
+    --card: rgba(255, 255, 255, 0.90);
+    --card-border: rgba(255, 255, 255, 0.55);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -29,33 +32,42 @@
       --bg: #121212; --surface: #191919; --border: #2c2c2c;
       --text: #efefef; --text-2: #9c9c9c; --text-3: #777777; --grid: #262626;
       --accent: #6aabf1; --pos: #3ec457; --neg: #f07374;
-      --series-1: #338ced; --series-2: #e76624; --series-3: #00a888; --series-4: #9887ef;
-      --series-5: #e24d8b; --series-6: #0aac23; --series-7: #d28e05; --series-8: #eb6263;
+      --series-1: #338ced; --series-2: #e76624; --series-3: #00a888; --series-4: #d28e05;
+      --series-5: #e24d8b; --series-6: #0aac23; --series-7: #9887ef; --series-8: #eb6263;
+      --series-9: #1a9aa0; --series-10: #b98a1a;
       --bench: #8c8c8c; --bar: #338ced; --chip: #242424;
+      --card: rgba(22, 22, 26, 0.84); --card-border: rgba(255, 255, 255, 0.08);
     }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
          font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; }
+  body { background: #2a2350; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1;
+    background: url("assets/background.jpg") center / cover no-repeat; }
+  .panel, .card, .tile, .report, .note, header, nav, footer {
+    background: var(--card); border: 1px solid var(--card-border) !important; border-radius: 12px;
+    backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1);
+    box-shadow: 0 6px 24px rgba(20, 10, 50, 0.18); }
   .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px 48px; }
   header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-           padding: 28px 0 14px; flex-wrap: wrap; }
+           padding: 18px 22px; margin: 28px 0 14px; flex-wrap: wrap; }
   h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
   .updated { color: var(--text-2); font-size: 12.5px; }
-  nav { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 22px;
+  nav { display: flex; gap: 4px; padding: 2px 10px; margin-bottom: 22px;
         overflow-x: auto; scrollbar-width: none; }
   nav button { background: none; border: 0; padding: 10px 14px; font: inherit; color: var(--text-2);
                cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
   nav button:hover { color: var(--text); }
   nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; }
+  .card {  border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; }
   .card h2 { font-size: 15px; margin: 0 0 12px; }
   .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
   .card-head h2 { margin: 0; }
   .muted { color: var(--text-2); }
   .small { font-size: 12.5px; }
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
-  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .tile {  border-radius: 10px; padding: 14px 16px; }
   .tile .label { color: var(--text-2); font-size: 12px; margin-bottom: 4px; }
   .tile .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
   .tile .sub { font-size: 12.5px; margin-top: 2px; color: var(--text-2); font-variant-numeric: tabular-nums; }
@@ -84,11 +96,13 @@
   .alloc-track { height: 10px; background: var(--grid); border-radius: 4px; overflow: hidden; }
   .alloc-fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
   .alloc-row .pct { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
-  .grid2 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+  .grid2 { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; }
   .grid2 > .card { margin-bottom: 0; }
   @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
   .reports { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-  .report { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .report {  border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .badge.buy { background: rgba(0, 138, 23, 0.12); color: var(--pos); }
+  .badge.sell { background: rgba(198, 47, 48, 0.12); color: var(--neg); }
   .report h3 { font-size: 15px; margin: 0; }
   .badge { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--chip); }
   .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-variant-numeric: tabular-nums; }
@@ -99,10 +113,31 @@
   .empty { text-align: center; padding: 40px 20px; color: var(--text-2); }
   .empty h2 { color: var(--text); font-size: 17px; }
   .empty code, .note code { background: var(--chip); padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
-  .note { border-left: 3px solid var(--neg); padding: 8px 12px; background: var(--surface); margin-bottom: 14px; border-radius: 4px; font-size: 13px; }
+  .note { border-left: 3px solid var(--neg); padding: 8px 12px; margin-bottom: 14px; font-size: 13px; }
   .note.info { border-left-color: var(--accent); }
   details summary { cursor: pointer; color: var(--text-2); font-size: 12.5px; margin-top: 8px; }
-  footer { color: var(--text-3); font-size: 12px; margin-top: 28px; line-height: 1.6; }
+  .pie-wrap { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: center; }
+  .piebox { position: relative; height: 220px; }
+  .pie-legend { list-style: none; margin: 0; padding: 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .pie-legend li { display: grid; grid-template-columns: 18px 1fr auto 56px; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid var(--grid); }
+  .pie-legend .swatch { margin: 0; }
+  .pl-val { color: var(--text-2); } .pl-pct { text-align: right; font-weight: 600; }
+  @media (max-width: 560px) { .pie-wrap { grid-template-columns: 1fr; } }
+  .about { display: flex; gap: 24px; align-items: flex-start; }
+  .about-img { width: 132px; height: 132px; object-fit: cover; border-radius: 12px; flex: none; }
+  .about-name { font-size: 20px !important; margin-bottom: 4px !important; }
+  .about p { margin: 0 0 10px; max-width: 70ch; }
+  .links { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
+  .links a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  @media (max-width: 560px) { .about { flex-direction: column; } }
+  .grid2 { margin-bottom: 0; }
+  @media (max-width: 560px) {
+    .tiles { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tile .value { font-size: 19px; }
+    nav button { padding: 10px 9px; }
+    .wrap { padding: 0 14px 40px; }
+  }
+  footer { color: var(--text-2); font-size: 12px; margin-top: 28px; line-height: 1.6; padding: 12px 18px; }
 </style>
 </head>
 <body>
@@ -196,7 +231,7 @@
           x: { grid: { display: false }, border: { color: grid }, ticks: { color: t2, maxTicksLimit: 6, maxRotation: 0,
                callback(v) { const d = new Date(this.getLabelForValue(v) + "T00:00:00");
                  return d.toLocaleDateString("en-US", labels.length > 260 ? {month: "short", year: "2-digit"} : {month: "short", day: "numeric"}); } } },
-          y: { grid: { color: grid }, border: { display: false }, ticks: { color: t2, maxTicksLimit: 6, callback: v => pct(v / 100 - 1, 0) } }
+          y: { grid: { color: grid }, border: { display: false }, ticks: { color: t2, maxTicksLimit: 6, callback: (v, i, ts) => { const span = ts.length > 1 ? Math.abs(ts[ts.length - 1].value - ts[0].value) : 10; return pct(v / 100 - 1, span < 6 ? 1 : 0); } } }
         }
       },
       plugins: [crosshair]
@@ -222,88 +257,136 @@
   }
 
   // ------------------------------------------------------------ views
-  function viewOverview(el) {
-    const ps = snap.portfolios;
-    if (!ps.length) return emptyState(el);
-    const total = ps.reduce((s, p) => s + (p.value || 0), 0);
-    const dayChg = ps.reduce((s, p) => s + (p.value || 0) * (p.day_pct || 0) / (1 + (p.day_pct || 0)), 0);
-    const unreal = ps.reduce((s, p) => s + (p.unrealized || 0), 0);
-    const best = ps.filter(p => p.periods?.YTD?.port != null).sort((a, b) => b.periods.YTD.port - a.periods.YTD.port)[0];
-    el.innerHTML = `
-      <div class="tiles">
-        <div class="tile"><div class="label">Total value</div><div class="value">${money(total)}</div><div class="sub">${ps.length} portfolio${ps.length > 1 ? "s" : ""}</div></div>
-        <div class="tile"><div class="label">Today</div><div class="value ${cls(dayChg)}">${signed(dayChg)}</div><div class="sub">across all portfolios</div></div>
-        <div class="tile"><div class="label">Unrealized gain</div><div class="value ${cls(unreal)}">${signed(unreal)}</div><div class="sub">open positions</div></div>
-        <div class="tile"><div class="label">S&amp;P 500 today</div><div class="value ${cls(benchDay())}">${pct(benchDay(), 2)}</div><div class="sub">SPY</div></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h2>Returns vs S&amp;P 500</h2></div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Portfolio</th><th>Value</th><th>Today</th><th>1M</th><th>3M</th><th>YTD</th><th>1Y</th><th>Since start</th></tr></thead>
-          <tbody>${ps.map((p, i) => `
-            <tr><td><span class="swatch" style="background:var(${SERIES[i % 8]})"></span><a href="#${p.id}" style="color:inherit;font-weight:600;text-decoration:none">${esc(p.name)}</a></td>
-              <td>${money(p.value)}</td><td class="${cls(p.day_pct)}">${pct(p.day_pct, 2)}</td>${periodCells(p.periods, "port")}</tr>
-            <tr class="bench"><td>S&amp;P 500, same period</td><td></td><td></td>${periodCells(p.periods, "bench")}</tr>`).join("")}
-          </tbody></table></div>
-        <div class="small muted" style="margin-top:8px">“—” means the portfolio is younger than that period. YTD uses the start date if the portfolio began this year.</div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h2>Growth of $100</h2><span id="ov-range"></span></div>
-        <div class="legend">${ps.map((p, i) => `<span><i style="border-color:var(${SERIES[i % 8]})"></i>${esc(p.name)}</span>`).join("")}<span><i class="dash" style="border-color:var(--bench)"></i>S&amp;P 500</span></div>
-        <div class="chartbox"><canvas id="ov-chart" aria-label="Growth of 100 dollars for each portfolio and the S&P 500"></canvas></div>
-      </div>`;
-    const canvas = el.querySelector("#ov-chart");
-    let chart;
-    const draw = range => {
-      // union of all dates across portfolios
-      const all = [...new Set(ps.flatMap(p => p.series.dates))].sort();
-      const from = rangeStart(all[all.length - 1], range);
-      const labels = all.filter(d => !from || d >= from || d === all.filter(x => x <= from).pop());
-      const ds = ps.map((p, i) => {
-        const r = rebase(p.series.dates, p.series.index, from && from > p.series.dates[0] ? from : null);
-        const m = new Map(r.dates.map((d, k) => [d, r.vals[k]]));
-        return { label: p.name, color: css(SERIES[i % 8]), data: labels.map(d => m.has(d) ? m.get(d) : null) };
-      });
-      const b = rebase(labels, benchOn(labels), null);
-      ds.push({ label: "S&P 500", color: css("--bench"), dash: true, data: b.vals });
-      if (chart) chart.destroy();
-      chart = lineChart(canvas, labels, ds);
-    };
-    el.querySelector("#ov-range").appendChild(rangeControl(draw, "1Y"));
-    draw("1Y");
-  }
+  const PIE = [1,2,3,4,5,6,7,8,9,10].map(i => `--series-${i}`);
+  let current = 0;          // selected portfolio (when there is more than one)
+  let site = {};
 
   function benchDay() {
     const c = snap.benchmark.close; return c.length > 1 ? c[c.length - 1] / c[c.length - 2] - 1 : null;
   }
 
-  function viewPortfolio(el, p, idx) {
-    const color = SERIES[idx % 8];
-    const since = p.periods?.Start;
-    const empty = !p.has_positions;
+  function picker(el, redraw) {
+    if (snap.portfolios.length < 2) return;
+    const wrap = document.createElement("div");
+    wrap.style.marginBottom = "16px";
+    const seg = document.createElement("div"); seg.className = "seg";
+    snap.portfolios.forEach((p, i) => {
+      const b = document.createElement("button"); b.textContent = p.name;
+      b.setAttribute("aria-pressed", i === current);
+      b.onclick = () => { current = i; redraw(); };
+      seg.appendChild(b);
+    });
+    wrap.appendChild(seg); el.prepend(wrap);
+  }
+
+  function viewAbout(el) {
+    const ps = snap.portfolios;
+    const total = ps.reduce((s, p) => s + (p.value || 0), 0);
+    const nHold = ps.reduce((s, p) => s + p.holdings.length, 0);
+    const paras = Array.isArray(site.about) ? site.about : (site.about ? [site.about] : []);
+    el.innerHTML = `
+      <div class="card about">
+        ${site.image ? `<img class="about-img" src="${esc(site.image)}" alt="">` : ""}
+        <div>
+          <h2 class="about-name">${esc(site.name || "About")}</h2>
+          ${site.tagline ? `<div class="muted" style="margin-bottom:10px">${esc(site.tagline)}</div>` : ""}
+          ${paras.length ? paras.map(t => `<p>${esc(t)}</p>`).join("")
+            : `<p class="muted">Add a short introduction in <code>data/site.json</code>.</p>`}
+          ${(site.links || []).length ? `<div class="links">${site.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} →</a>`).join("")}</div>` : ""}
+        </div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="label">Holdings</div><div class="value">${nHold}</div><div class="sub">${ps.length} portfolio${ps.length === 1 ? "" : "s"}</div></div>
+        <div class="tile"><div class="label">Since start</div><div class="value ${cls(ps[0]?.periods?.Start?.port)}">${pct(ps[0]?.periods?.Start?.port)}</div><div class="sub">S&amp;P 500 ${pct(ps[0]?.periods?.Start?.bench)}</div></div>
+        <div class="tile"><div class="label">Research reports</div><div class="value">${snap.reports.length}</div><div class="sub">see Research tab</div></div>
+        <div class="tile"><div class="label">Last updated</div><div class="value" style="font-size:17px;padding-top:4px">${updatedText()}</div><div class="sub">prices refresh hourly in market hours</div></div>
+      </div>`;
+  }
+
+  function viewHoldings(el) {
+    if (!snap.portfolios.length) return emptyState(el);
+    const p = snap.portfolios[current];
+    const eq = p.holdings.filter(h => (h.value || 0) > 0);
+    const eqTotal = eq.reduce((s, h) => s + h.value, 0);
+    const cost = p.invested || 0;
+    // fold anything past 10 slices into "Other"
+    let slices = eq.map(h => ({ label: h.ticker, name: h.name, value: h.value }));
+    if (slices.length > 10) {
+      const rest = slices.slice(9);
+      slices = slices.slice(0, 9).concat([{ label: "Other", name: rest.map(r => r.label).join(", "), value: rest.reduce((s, r) => s + r.value, 0) }]);
+    }
     el.innerHTML = `
       ${p.description ? `<p class="muted" style="margin:-6px 0 16px">${esc(p.description)}</p>` : ""}
-      ${empty ? `<div class="note info">This portfolio has no positions yet. Add them in <code>data/portfolios.json</code>.</div>` : ""}
       <div class="tiles">
-        <div class="tile"><div class="label">Value</div><div class="value">${money(p.value)}</div><div class="sub">incl. ${money(p.cash)} cash${p.net_deposits ? ` · ${signed(p.net_deposits)} added` : ""}</div></div>
+        <div class="tile"><div class="label">Total value</div><div class="value">${money(p.value)}</div><div class="sub">${money(eqTotal)} stocks · ${money(p.cash)} cash</div></div>
         <div class="tile"><div class="label">Today</div><div class="value ${cls(p.day_pct)}">${pct(p.day_pct, 2)}</div><div class="sub">S&amp;P 500 ${pct(benchDay(), 2)}</div></div>
+        <div class="tile"><div class="label">Unrealized gain</div><div class="value ${cls(p.unrealized)}">${signed(p.unrealized)}</div><div class="sub">${pct(cost ? p.unrealized / cost : null)} on ${money(cost)} cost</div></div>
+        <div class="tile"><div class="label">Positions</div><div class="value">${p.holdings.length}</div><div class="sub">largest ${esc(eq[0]?.ticker || "—")} at ${pct(eqTotal ? (eq[0]?.value || 0) / eqTotal : null).replace("+", "")}</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head"><h2>Equity weights</h2><span class="small muted">share of stock holdings, excluding cash</span></div>
+          ${slices.length ? `<div class="pie-wrap">
+            <div class="piebox"><canvas aria-label="Pie chart of equity holding weights"></canvas></div>
+            <ul class="pie-legend">${slices.map((s, i) => `<li title="${esc(s.name)}">
+              <span class="swatch" style="background:var(${PIE[i]})"></span><span class="tick">${esc(s.label)}</span>
+              <span class="pl-val">${money(s.value)}</span><span class="pl-pct">${pct(s.value / eqTotal).replace("+", "")}</span></li>`).join("")}</ul>
+          </div>` : `<p class="muted">No stock holdings yet.</p>`}
+        </div>
+        <div class="card"><h2>Allocation by sector</h2>${allocation(p)}</div>
+      </div>
+      <div class="card" style="margin-top:18px"><h2>Holdings</h2>${holdingsTable(p)}</div>`;
+    picker(el, () => show());
+    if (slices.length) {
+      const c = new Chart(el.querySelector(".piebox canvas"), {
+        type: "pie",
+        data: { labels: slices.map(s => s.label), datasets: [{ data: slices.map(s => s.value),
+          backgroundColor: slices.map((s, i) => css(PIE[i])), borderColor: css("--surface"), borderWidth: 2, hoverOffset: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, animation: false, layout: { padding: 6 },
+          plugins: { legend: { display: false }, tooltip: {
+            backgroundColor: css("--surface"), titleColor: css("--text"), bodyColor: css("--text"),
+            borderColor: css("--border"), borderWidth: 1, padding: 10, boxPadding: 4,
+            callbacks: { label: it => ` ${pct(it.parsed / eqTotal).replace("+", "")} · ${money(it.parsed)}` } } } }
+      });
+      charts.push(c);
+    }
+  }
+
+  function viewPerformance(el) {
+    const ps = snap.portfolios;
+    if (!ps.length) return emptyState(el);
+    const p = ps[current];
+    const since = p.periods?.Start;
+    el.innerHTML = `
+      <div class="tiles">
         <div class="tile"><div class="label">Since ${new Date(p.start_date + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</div>
           <div class="value ${cls(since?.port)}">${pct(since?.port)}</div><div class="sub">S&amp;P 500 ${pct(since?.bench)}</div></div>
-        <div class="tile"><div class="label">Gain</div><div class="value ${cls(p.unrealized)}">${signed(p.unrealized)}</div><div class="sub">unrealized · ${signed(p.realized)} realized</div></div>
+        <div class="tile"><div class="label">vs S&amp;P 500</div><div class="value ${cls(since ? since.port - since.bench : null)}">${since ? pct(since.port - since.bench).replace("%", " pts") : "—"}</div><div class="sub">since start</div></div>
+        <div class="tile"><div class="label">Realized gain</div><div class="value ${cls(p.realized)}">${signed(p.realized)}</div><div class="sub">${p.closed.length} closed position${p.closed.length === 1 ? "" : "s"}</div></div>
+        <div class="tile"><div class="label">Cash added</div><div class="value">${signed(p.net_deposits || 0)}</div><div class="sub">net of withdrawals</div></div>
       </div>
       <div class="card">
         <div class="card-head"><h2>Return vs S&amp;P 500</h2><span class="rng"></span></div>
-        <div class="legend"><span><i style="border-color:var(${color})"></i>${esc(p.name)}</span><span><i class="dash" style="border-color:var(--bench)"></i>S&amp;P 500</span></div>
+        <div class="legend"><span><i style="border-color:var(--series-1)"></i>${esc(p.name)}</span><span><i class="dash" style="border-color:var(--bench)"></i>S&amp;P 500</span></div>
         <div class="chartbox"><canvas aria-label="${esc(p.name)} cumulative return compared with the S&P 500"></canvas></div>
+        ${p.series.dates.length < 3 ? `<div class="small muted" style="margin-top:8px">The chart fills in as trading days go by.</div>` : ""}
       </div>
-      <div class="grid2">
-        <div class="card"><h2>Holdings</h2>${holdingsTable(p)}</div>
-        <div class="card"><h2>Allocation by sector</h2>${allocation(p)}</div>
+      <div class="card">
+        <h2>Returns by period</h2>
+        <div class="tablewrap"><table>
+          <thead><tr><th></th><th>1M</th><th>3M</th><th>YTD</th><th>1Y</th><th>Since start</th></tr></thead>
+          <tbody>${ps.map(q => `
+            <tr><td style="font-weight:600">${esc(q.name)}</td>${periodCells(q.periods, "port")}</tr>
+            <tr class="bench"><td>S&amp;P 500</td>${periodCells(q.periods, "bench")}</tr>`).join("")}
+          </tbody></table></div>
+        <div class="small muted" style="margin-top:8px">“—” means the portfolio is younger than that period.</div>
       </div>
-      ${p.closed.length ? `<div class="card" style="margin-top:18px"><h2>Closed positions</h2>${closedTable(p)}</div>` : ""}
-      ${(p.cash_activity || []).length ? `<div class="card" style="margin-top:18px"><div class="card-head"><h2>Cash added and withdrawn</h2>
+      <div class="card"><h2>Recent trades</h2>${tradesTable(p)}</div>
+      ${p.closed.length ? `<div class="card"><h2>Closed positions</h2>${closedTable(p)}</div>` : ""}
+      ${(p.cash_activity || []).length ? `<div class="card"><div class="card-head"><h2>Cash added and withdrawn</h2>
         <span class="small muted">Cash balance now ${money(p.cash, 2)}</span></div>${cashTable(p)}</div>` : ""}`;
-    const canvas = el.querySelector("canvas");
+    picker(el, () => show());
+    const canvas = el.querySelector(".chartbox canvas");
     let chart;
     const draw = range => {
       const s = p.series, last = s.dates[s.dates.length - 1];
@@ -311,9 +394,9 @@
       if (from && from <= s.dates[0]) from = null;
       const r = rebase(s.dates, s.index, from);
       const b = rebase(r.dates, benchOn(r.dates), null);
-      if (chart) chart.destroy();
+      if (chart) { chart.destroy(); charts = charts.filter(c => c !== chart); }
       chart = lineChart(canvas, r.dates, [
-        { label: p.name, color: css(color), data: r.vals },
+        { label: p.name, color: css("--series-1"), data: r.vals },
         { label: "S&P 500", color: css("--bench"), dash: true, data: b.vals }]);
     };
     el.querySelector(".rng").appendChild(rangeControl(draw, "All"));
@@ -340,6 +423,18 @@
       <div>${esc(a.sector)}</div>
       <div class="alloc-track"><div class="alloc-fill" style="width:${max ? (a.weight / max * 100).toFixed(1) : 0}%"></div></div>
       <div class="pct">${pct(a.weight).replace("+", "")}</div></div>`).join("");
+  }
+
+  function tradesTable(p) {
+    const ts = p.trades || [];
+    if (!ts.length) return `<p class="muted">No trades since tracking started on ${new Date(p.start_date + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}. Your next 10 buys and sells will show here.</p>`;
+    return `<div class="tablewrap"><table>
+      <thead><tr><th>Date</th><th class="l">Action</th><th class="l">Ticker</th><th>Shares</th><th>Price</th><th>Amount</th></tr></thead>
+      <tbody>${ts.map(t => `<tr>
+        <td>${new Date(t.date + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</td>
+        <td class="l"><span class="badge ${t.action === "Buy" ? "buy" : "sell"}">${t.action}</span></td>
+        <td class="l tick">${esc(t.ticker)}</td><td>${shares(t.shares)}</td><td>${price(t.price)}</td><td>${money(t.amount, 2)}</td></tr>`).join("")}
+      </tbody></table></div>`;
   }
 
   function cashTable(p) {
@@ -392,32 +487,45 @@
   }
 
   // ------------------------------------------------------------ shell
-  function render() {
-    const tabs = [{ id: "overview", label: "Overview" }]
-      .concat(snap.portfolios.map(p => ({ id: p.id, label: p.name })))
-      .concat([{ id: "research", label: "Research" }]);
+  const TABS = [
+    { id: "about", label: "About", view: el => viewAbout(el) },
+    { id: "portfolio", label: "Portfolio", view: el => viewHoldings(el) },
+    { id: "performance", label: "Performance", view: el => viewPerformance(el) },
+    { id: "research", label: "Research", view: el => viewResearch(el) },
+  ];
+
+  function updatedText() {
+    return snap.generated_at ? new Date(snap.generated_at).toLocaleString("en-US", {
+      timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " ET" : "—";
+  }
+
+  function show() {
     const nav = document.getElementById("tabs");
-    nav.innerHTML = tabs.map(t => `<button role="tab" data-id="${t.id}">${esc(t.label)}</button>`).join("");
+    const id = (location.hash || "#about").slice(1);
+    const tab = TABS.find(t => t.id === id) || TABS[0];
+    nav.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.id === tab.id));
+    charts.forEach(c => c.destroy()); charts = [];
+    const main = document.getElementById("main");
+    main.innerHTML = (snap.warnings || []).map(w => `<div class="note">${esc(w)}</div>`).join("")
+      + (snap.mock ? `<div class="note info">Preview: holdings are real, prices are made up.</div>` : "");
+    const el = document.createElement("div"); main.appendChild(el);
+    tab.view(el);
+  }
+
+  function render() {
+    const nav = document.getElementById("tabs");
+    nav.innerHTML = TABS.map(t => `<button role="tab" data-id="${t.id}">${t.label}</button>`).join("");
     nav.querySelectorAll("button").forEach(b => b.onclick = () => { location.hash = b.dataset.id; });
-    const show = () => {
-      const id = (location.hash || "#overview").slice(1);
-      const tab = tabs.find(t => t.id === id) || tabs[0];
-      nav.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.id === tab.id));
-      charts.forEach(c => c.destroy()); charts = [];
-      const main = document.getElementById("main");
-      main.innerHTML = (snap.warnings || []).map(w => `<div class="note">${esc(w)}</div>`).join("")
-        + (snap.mock ? `<div class="note info">Test data: these prices are made up.</div>` : "");
-      const el = document.createElement("div"); main.appendChild(el);
-      if (tab.id === "overview") viewOverview(el);
-      else if (tab.id === "research") viewResearch(el);
-      else { const i = snap.portfolios.findIndex(p => p.id === tab.id); viewPortfolio(el, snap.portfolios[i], i); }
-    };
     window.onhashchange = show;
     show();
   }
 
-  fetch("data/snapshot.json?t=" + Date.now()).then(r => r.json()).then(s => {
-    snap = s;
+  Promise.all([
+    fetch("data/snapshot.json?t=" + Date.now()).then(r => r.json()),
+    fetch("data/site.json?t=" + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+  ]).then(([s, st]) => {
+    snap = s; site = st || {};
+    if (site.title) { document.getElementById("title").textContent = site.title; document.title = site.title; }
     const up = document.getElementById("updated");
     if (!s.generated_at) {
       up.textContent = "Waiting for the first update";
@@ -425,11 +533,11 @@
         <p>On GitHub, go to the <b>Actions</b> tab and click <b>Run workflow</b>. This page fills in about 2 minutes later.</p></div>`;
       return;
     }
-    up.textContent = "Updated " + new Date(s.generated_at).toLocaleString("en-US", {
-      timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " ET";
+    up.textContent = "Updated " + updatedText();
     render();
   }).catch(() => { document.getElementById("updated").textContent = "Could not load data"; });
 })();
+
 </script>
 </body>
 </html>
