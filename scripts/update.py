@@ -97,6 +97,13 @@ def read_inputs(data_dir):
                 if entry["sell_date"] < entry["buy_date"]:
                     sys.exit(f"ERROR: {w}: sell_date is before buy_date")
             lots.append(entry)
+        flows = []
+        for j, f in enumerate(p.get("cash_flows", [])):
+            w = f"{where}, cash_flows entry {j + 1}"
+            flows.append({"date": parse_date(f.get("date"), "date", w),
+                          "amount": num(f.get("amount"), "amount", w),
+                          "note": str(f.get("note") or "")})
+        flows.sort(key=lambda f: f["date"])
         start = p.get("start_date")
         if start:
             start = parse_date(start, "start_date", where)
@@ -111,6 +118,7 @@ def read_inputs(data_dir):
             "cash": num(p.get("cash", 0) or 0, "cash", where),
             "start": start,
             "lots": lots,
+            "flows": flows,
         })
     reports = load_json(data_dir / "reports.json", {"reports": []}).get("reports", [])
     return portfolios, reports
@@ -196,7 +204,10 @@ def build_portfolio(p, close, bench_close, meta):
         days = bench_close.index[-1:]
     prices = close.reindex(close.index.union(days)).ffill().reindex(days)
 
-    before = close[close.index < days[0]].ffill()
+    start = p["start"]
+    # If the start date has no trading day yet (e.g. a holiday), value at the latest close.
+    anchor = days[0] if days[0] >= start else None
+    before = close[close.index < days[0]].ffill() if anchor is not None else close[close.index <= days[0]].ffill()
 
     def start_price(l):
         t = l["ticker"]
@@ -204,11 +215,28 @@ def build_portfolio(p, close, bench_close, meta):
             return float(before[t].iloc[-1])
         return l["buy_price"]
 
-    values, returns = [], []
-    prev_value = p["cash"]
-    for d in days:
-        value = p["cash"]
-        inflow = outflow = 0.0
+    flows = p["flows"]
+    # Positions already held on the start date (entered with an average cost).
+    initial = [l for l in lots if l["buy_date"] < start
+               and (l["sell_date"] is None or l["sell_date"] >= start)]
+    # Cash on the start date: starting cash plus any deposits/withdrawals dated before it.
+    cash0 = p["cash"] + sum(f["amount"] for f in flows if f["date"] < start)
+
+    def cash_on(d):
+        """Cash ledger: deposits/withdrawals, minus buys, plus sales (from the start date on)."""
+        c = cash0 + sum(f["amount"] for f in flows if start <= f["date"] <= d)
+        for l in lots:
+            if start <= l["buy_date"] <= d:
+                c -= l["shares"] * l["buy_price"]
+            if l["sell_date"] is not None and start <= l["sell_date"] <= d:
+                c += l["shares"] * l["sell_price"]
+        return c
+
+    values, returns, cash_series = [], [], []
+    prev_value = cash0
+    for k, d in enumerate(days):
+        cash = cash_on(d)
+        value = cash
         for l in lots:
             held = l["buy_date"] <= d and (l["sell_date"] is None or l["sell_date"] > d)
             if held:
@@ -216,19 +244,17 @@ def build_portfolio(p, close, bench_close, meta):
                 if pd.isna(px):
                     px = l["buy_price"]
                 value += l["shares"] * px
-            if l["buy_date"] == d:
-                inflow += l["shares"] * l["buy_price"]
-            elif d == days[0] and l["buy_date"] < d and held:
-                # bought before the portfolio's start date: count it as money in
-                # at the previous close, so returns are measured from the start date
-                inflow += l["shares"] * start_price(l)
-            if l["sell_date"] is not None and l["sell_date"] == d:
-                outflow += l["shares"] * l["sell_price"]
+        # Only deposits and withdrawals count as money in/out; trades just move cash.
+        inflow = sum(f["amount"] for f in flows if f["date"] == d and f["amount"] > 0)
+        outflow = -sum(f["amount"] for f in flows if f["date"] == d and f["amount"] < 0)
+        if k == 0:
+            inflow += sum(l["shares"] * start_price(l) for l in initial)
         # Time-weighted return: money in at start of day, money out at end of day.
         base = prev_value + inflow
         r = (value + outflow) / base - 1 if base > 0 else 0.0
         values.append(value)
         returns.append(r)
+        cash_series.append(cash)
         prev_value = value
 
     index = (pd.Series(returns, index=days) + 1).cumprod() * 100
@@ -264,7 +290,8 @@ def build_portfolio(p, close, bench_close, meta):
         h["cost"] += l["shares"] * l["buy_price"]
         h["first_buy"] = min(h["first_buy"], l["buy_date"])
 
-    total = values[-1] if values else p["cash"]
+    cash_now = cash_series[-1]
+    total = values[-1] if values else cash_now
     rows = []
     for t, h in holdings.items():
         px = prices.at[last, t] if t in prices else float("nan")
@@ -286,15 +313,19 @@ def build_portfolio(p, close, bench_close, meta):
     sectors = {}
     for r in rows:
         sectors[r["sector"]] = sectors.get(r["sector"], 0) + (r["value"] or 0)
-    if p["cash"]:
-        sectors["Cash"] = sectors.get("Cash", 0) + p["cash"]
+    if abs(cash_now) > 0.005:
+        sectors["Cash"] = sectors.get("Cash", 0) + cash_now
     allocation = [{"sector": k, "value": v, "weight": v / total if total else None}
                   for k, v in sorted(sectors.items(), key=lambda kv: -kv[1])]
 
     invested = sum(h["cost"] for h in holdings.values())
     return {
         "id": p["id"], "name": p["name"], "description": p["description"],
-        "start_date": p["start"].date().isoformat(), "cash": p["cash"],
+        "start_date": p["start"].date().isoformat(), "cash": cash_now,
+        "cash_activity": [{"date": f["date"].date().isoformat(), "amount": f["amount"], "note": f["note"]}
+                          for f in reversed(flows)],
+        "net_deposits": sum(f["amount"] for f in flows),
+        "min_cash": (min(cash_series), days[cash_series.index(min(cash_series))].date().isoformat()),
         "value": total, "invested": invested,
         "unrealized": sum(r["gain"] for r in rows),
         "realized": sum(c["gain"] for c in closed),
@@ -389,6 +420,10 @@ def main():
     for p in portfolios:
         bp = build_portfolio(p, close, bench, meta)
         bp["periods"] = period_returns(bp["series"]["dates"], bp["series"]["index"], bench)
+        low, low_day = bp.pop("min_cash")
+        if low < -0.5:
+            warnings.append(f"{bp['name']}: cash drops below zero (${low:,.2f}) on {low_day}. "
+                            "Add the deposit that paid for that purchase under cash_flows.")
         built.append(bp)
 
     snapshot = {
