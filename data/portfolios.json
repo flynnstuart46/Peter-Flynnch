@@ -1,3 +1,22 @@
 {
-  "portfolios": []
+  "portfolios": [
+    {
+      "name": "Portfolio",
+      "start_date": "2026-11-26",
+      "cash": 1006.83,
+      "cash_flows": [],
+      "positions": [
+        { "ticker": "FTK", "shares": 288.507706, "buy_price": 23.3822, "buy_date": "2026-11-25" },
+        { "ticker": "QXO", "shares": 53.20758, "buy_price": 15.97, "buy_date": "2026-11-25" },
+        { "ticker": "CRK", "shares": 166.6074, "buy_price": 15.2, "buy_date": "2026-11-25" },
+        { "ticker": "XRAY", "shares": 155, "buy_price": 10.76, "buy_date": "2026-11-25" },
+        { "ticker": "PYPL", "shares": 10, "buy_price": 40.33, "buy_date": "2026-11-25" },
+        { "ticker": "SMCI", "shares": 14, "buy_price": 44.1, "buy_date": "2026-11-25" },
+        { "ticker": "DFH", "shares": 27, "buy_price": 18.02, "buy_date": "2026-11-25" },
+        { "ticker": "HOOD", "shares": 2, "buy_price": 69.5, "buy_date": "2026-11-25" },
+        { "ticker": "NXT", "shares": 1.5, "buy_price": 67.63, "buy_date": "2026-11-25" },
+        { "ticker": "NVDA", "shares": 2, "buy_price": 171.8, "buy_date": "2026-11-25" }
+      ]
+    }
+  ]
 }
