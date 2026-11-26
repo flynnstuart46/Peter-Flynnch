@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Hub</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f6f4;
+    --surface: #ffffff;
+    --border: #e3e3df;
+    --text: #191919;
+    --text-2: #666666;
+    --text-3: #8f8f8f;
+    --grid: #ececea;
+    --accent: #1b64be;
+    --pos: #00731a;
+    --neg: #c62f30;
+    --series-1: #257de0; --series-2: #f47230; --series-3: #00b894; --series-4: #6a4ce2;
+    --series-5: #ee7fac; --series-6: #008a17; --series-7: #f2a600; --series-8: #ec4647;
+    --bench: #8a8a8a;
+    --bar: #257de0;
+    --chip: #efefec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #121212; --surface: #191919; --border: #2c2c2c;
+      --text: #efefef; --text-2: #9c9c9c; --text-3: #777777; --grid: #262626;
+      --accent: #6aabf1; --pos: #3ec457; --neg: #f07374;
+      --series-1: #338ced; --series-2: #e76624; --series-3: #00a888; --series-4: #9887ef;
+      --series-5: #e24d8b; --series-6: #0aac23; --series-7: #d28e05; --series-8: #eb6263;
+      --bench: #8c8c8c; --bar: #338ced; --chip: #242424;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px 48px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+           padding: 28px 0 14px; flex-wrap: wrap; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+  .updated { color: var(--text-2); font-size: 12.5px; }
+  nav { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 22px;
+        overflow-x: auto; scrollbar-width: none; }
+  nav button { background: none; border: 0; padding: 10px 14px; font: inherit; color: var(--text-2);
+               cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+  nav button:hover { color: var(--text); }
+  nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 15px; margin: 0 0 12px; }
+  .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .card-head h2 { margin: 0; }
+  .muted { color: var(--text-2); }
+  .small { font-size: 12.5px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .tile .label { color: var(--text-2); font-size: 12px; margin-bottom: 4px; }
+  .tile .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .tile .sub { font-size: 12.5px; margin-top: 2px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th { color: var(--text-2); font-weight: 500; font-size: 12px; }
+  th:first-child, td:first-child { text-align: left; }
+  td.l, th.l { text-align: left; }
+  tr.bench td { color: var(--text-2); font-size: 12.5px; border-bottom-color: var(--border); }
+  tr.bench td:first-child { padding-left: 24px; }
+  .tablewrap { overflow-x: auto; }
+  .pos { color: var(--pos); } .neg { color: var(--neg); }
+  .tick { font-weight: 600; }
+  .name { color: var(--text-2); font-size: 12px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: -1px; }
+  .seg { display: inline-flex; background: var(--chip); border-radius: 8px; padding: 3px; }
+  .seg button { border: 0; background: none; font: inherit; font-size: 12.5px; padding: 4px 10px; border-radius: 6px;
+                color: var(--text-2); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+  .chartbox { position: relative; height: 300px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-2); margin: 4px 0 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { display: inline-block; width: 16px; height: 0; border-top: 2px solid; }
+  .legend i.dash { border-top-style: dashed; }
+  .alloc-row { display: grid; grid-template-columns: 160px 1fr 64px; gap: 10px; align-items: center; padding: 5px 0; font-size: 13px; }
+  .alloc-track { height: 10px; background: var(--grid); border-radius: 4px; overflow: hidden; }
+  .alloc-fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+  .alloc-row .pct { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
+  .grid2 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+  .grid2 > .card { margin-bottom: 0; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+  .reports { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .report { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .report h3 { font-size: 15px; margin: 0; }
+  .badge { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--chip); }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-variant-numeric: tabular-nums; }
+  .facts div { font-size: 12px; color: var(--text-2); }
+  .facts b { display: block; font-size: 15px; color: var(--text); }
+  .report a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .report a:hover { text-decoration: underline; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--text-2); }
+  .empty h2 { color: var(--text); font-size: 17px; }
+  .empty code, .note code { background: var(--chip); padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  .note { border-left: 3px solid var(--neg); padding: 8px 12px; background: var(--surface); margin-bottom: 14px; border-radius: 4px; font-size: 13px; }
+  .note.info { border-left-color: var(--accent); }
+  details summary { cursor: pointer; color: var(--text-2); font-size: 12.5px; margin-top: 8px; }
+  footer { color: var(--text-3); font-size: 12px; margin-top: 28px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Portfolio Hub</h1>
+    <div class="updated" id="updated">Loading…</div>
+  </header>
+  <nav id="tabs" role="tablist"></nav>
+  <main id="main"></main>
+  <footer>
+    Prices from Yahoo Finance, delayed about 15 minutes during the trading day. Returns are time-weighted price returns
+    (dividends not included) and are compared with SPY, an ETF that tracks the S&amp;P 500. For record-keeping only; not investment advice.
+  </footer>
+</div>
+
+<script src="assets/chart.umd.min.js"></script>
+<script>
+(function () {
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const SERIES = [1,2,3,4,5,6,7,8].map(i => `--series-${i}`);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const money = (v, d = 0) => v == null ? "—" : (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d});
+  const price = v => money(v, 2);
+  const pct = (v, d = 1) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v * 100).toFixed(d) + "%";
+  const signed = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + money(Math.abs(v));
+  const cls = v => v == null || v === 0 ? "" : v > 0 ? "pos" : "neg";
+  const shares = v => v == null ? "—" : (+v).toLocaleString("en-US", {maximumFractionDigits: 4});
+  const RANGES = ["1M", "3M", "YTD", "1Y", "All"];
+  let snap, charts = [];
+
+  function rangeStart(lastDate, range) {
+    const d = new Date(lastDate + "T00:00:00");
+    if (range === "1M") d.setMonth(d.getMonth() - 1);
+    else if (range === "3M") d.setMonth(d.getMonth() - 3);
+    else if (range === "1Y") d.setFullYear(d.getFullYear() - 1);
+    else if (range === "YTD") { d.setMonth(0, 1); d.setDate(0); }
+    else return null;
+    return d.toISOString().slice(0, 10);
+  }
+
+  // Rebase a series to 100 at the first date on/after `from` (or the last date before it).
+  function rebase(dates, vals, from) {
+    let i0 = 0;
+    if (from) { i0 = dates.findIndex(d => d >= from); if (i0 > 0 && dates[i0] > from) i0--; if (i0 < 0) i0 = 0; }
+    const base = vals[i0];
+    return { dates: dates.slice(i0), vals: vals.slice(i0).map(v => v == null || !base ? null : v / base * 100) };
+  }
+
+  function benchOn(dates) {
+    const bd = snap.benchmark.dates, bc = snap.benchmark.close, out = [];
+    let j = 0, last = null;
+    for (const d of dates) { while (j < bd.length && bd[j] <= d) { last = bc[j]; j++; } out.push(last); }
+    return out;
+  }
+
+  const crosshair = {
+    id: "crosshair",
+    afterDatasetsDraw(chart) {
+      const a = chart.tooltip && chart.tooltip.getActiveElements();
+      if (!a || !a.length) return;
+      const x = a[0].element.x, {top, bottom} = chart.chartArea, ctx = chart.ctx;
+      ctx.save(); ctx.strokeStyle = css("--text-3"); ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke(); ctx.restore();
+    }
+  };
+
+  function lineChart(canvas, labels, datasets) {
+    const grid = css("--grid"), t2 = css("--text-2");
+    const c = new Chart(canvas, {
+      type: "line",
+      data: { labels, datasets: datasets.map(ds => ({
+        label: ds.label, data: ds.data, borderColor: ds.color, backgroundColor: ds.color,
+        borderWidth: 2, borderDash: ds.dash ? [5, 4] : [], pointRadius: 0, pointHoverRadius: 4,
+        pointHoverBorderWidth: 2, pointHoverBorderColor: css("--surface"), tension: 0, spanGaps: true })) },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: css("--surface"), titleColor: css("--text"), bodyColor: css("--text"),
+            borderColor: css("--border"), borderWidth: 1, padding: 10, boxPadding: 4, usePointStyle: true,
+            callbacks: {
+              title: items => new Date(items[0].label + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"}),
+              label: it => ` ${it.dataset.label}: ${pct(it.parsed.y / 100 - 1)}`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, border: { color: grid }, ticks: { color: t2, maxTicksLimit: 6, maxRotation: 0,
+               callback(v) { const d = new Date(this.getLabelForValue(v) + "T00:00:00");
+                 return d.toLocaleDateString("en-US", labels.length > 260 ? {month: "short", year: "2-digit"} : {month: "short", day: "numeric"}); } } },
+          y: { grid: { color: grid }, border: { display: false }, ticks: { color: t2, maxTicksLimit: 6, callback: v => pct(v / 100 - 1, 0) } }
+        }
+      },
+      plugins: [crosshair]
+    });
+    charts.push(c);
+    return c;
+  }
+
+  function rangeControl(onPick, initial) {
+    const seg = document.createElement("div");
+    seg.className = "seg"; seg.setAttribute("role", "group"); seg.setAttribute("aria-label", "Time range");
+    RANGES.forEach(r => {
+      const b = document.createElement("button"); b.textContent = r;
+      b.setAttribute("aria-pressed", r === initial);
+      b.onclick = () => { seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(r); };
+      seg.appendChild(b);
+    });
+    return seg;
+  }
+
+  function periodCells(per, key) {
+    return ["1M", "3M", "YTD", "1Y", "Start"].map(k => { const v = per?.[k]?.[key]; return `<td class="${cls(v)}">${pct(v)}</td>`; }).join("");
+  }
+
+  // ------------------------------------------------------------ views
+  function viewOverview(el) {
+    const ps = snap.portfolios;
+    if (!ps.length) return emptyState(el);
+    const total = ps.reduce((s, p) => s + (p.value || 0), 0);
+    const dayChg = ps.reduce((s, p) => s + (p.value || 0) * (p.day_pct || 0) / (1 + (p.day_pct || 0)), 0);
+    const unreal = ps.reduce((s, p) => s + (p.unrealized || 0), 0);
+    const best = ps.filter(p => p.periods?.YTD?.port != null).sort((a, b) => b.periods.YTD.port - a.periods.YTD.port)[0];
+    el.innerHTML = `
+      <div class="tiles">
+        <div class="tile"><div class="label">Total value</div><div class="value">${money(total)}</div><div class="sub">${ps.length} portfolio${ps.length > 1 ? "s" : ""}</div></div>
+        <div class="tile"><div class="label">Today</div><div class="value ${cls(dayChg)}">${signed(dayChg)}</div><div class="sub">across all portfolios</div></div>
+        <div class="tile"><div class="label">Unrealized gain</div><div class="value ${cls(unreal)}">${signed(unreal)}</div><div class="sub">open positions</div></div>
+        <div class="tile"><div class="label">S&amp;P 500 today</div><div class="value ${cls(benchDay())}">${pct(benchDay(), 2)}</div><div class="sub">SPY</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Returns vs S&amp;P 500</h2></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Portfolio</th><th>Value</th><th>Today</th><th>1M</th><th>3M</th><th>YTD</th><th>1Y</th><th>Since start</th></tr></thead>
+          <tbody>${ps.map((p, i) => `
+            <tr><td><span class="swatch" style="background:var(${SERIES[i % 8]})"></span><a href="#${p.id}" style="color:inherit;font-weight:600;text-decoration:none">${esc(p.name)}</a></td>
+              <td>${money(p.value)}</td><td class="${cls(p.day_pct)}">${pct(p.day_pct, 2)}</td>${periodCells(p.periods, "port")}</tr>
+            <tr class="bench"><td>S&amp;P 500, same period</td><td></td><td></td>${periodCells(p.periods, "bench")}</tr>`).join("")}
+          </tbody></table></div>
+        <div class="small muted" style="margin-top:8px">“—” means the portfolio is younger than that period. YTD uses the start date if the portfolio began this year.</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Growth of $100</h2><span id="ov-range"></span></div>
+        <div class="legend">${ps.map((p, i) => `<span><i style="border-color:var(${SERIES[i % 8]})"></i>${esc(p.name)}</span>`).join("")}<span><i class="dash" style="border-color:var(--bench)"></i>S&amp;P 500</span></div>
+        <div class="chartbox"><canvas id="ov-chart" aria-label="Growth of 100 dollars for each portfolio and the S&P 500"></canvas></div>
+      </div>`;
+    const canvas = el.querySelector("#ov-chart");
+    let chart;
+    const draw = range => {
+      // union of all dates across portfolios
+      const all = [...new Set(ps.flatMap(p => p.series.dates))].sort();
+      const from = rangeStart(all[all.length - 1], range);
+      const labels = all.filter(d => !from || d >= from || d === all.filter(x => x <= from).pop());
+      const ds = ps.map((p, i) => {
+        const r = rebase(p.series.dates, p.series.index, from && from > p.series.dates[0] ? from : null);
+        const m = new Map(r.dates.map((d, k) => [d, r.vals[k]]));
+        return { label: p.name, color: css(SERIES[i % 8]), data: labels.map(d => m.has(d) ? m.get(d) : null) };
+      });
+      const b = rebase(labels, benchOn(labels), null);
+      ds.push({ label: "S&P 500", color: css("--bench"), dash: true, data: b.vals });
+      if (chart) chart.destroy();
+      chart = lineChart(canvas, labels, ds);
+    };
+    el.querySelector("#ov-range").appendChild(rangeControl(draw, "1Y"));
+    draw("1Y");
+  }
+
+  function benchDay() {
+    const c = snap.benchmark.close; return c.length > 1 ? c[c.length - 1] / c[c.length - 2] - 1 : null;
+  }
+
+  function viewPortfolio(el, p, idx) {
+    const color = SERIES[idx % 8];
+    const since = p.periods?.Start;
+    const empty = !p.has_positions;
+    el.innerHTML = `
+      ${p.description ? `<p class="muted" style="margin:-6px 0 16px">${esc(p.description)}</p>` : ""}
+      ${empty ? `<div class="note info">This portfolio has no positions yet. Add them in <code>data/portfolios.json</code>.</div>` : ""}
+      <div class="tiles">
+        <div class="tile"><div class="label">Value</div><div class="value">${money(p.value)}</div><div class="sub">incl. ${money(p.cash)} cash</div></div>
+        <div class="tile"><div class="label">Today</div><div class="value ${cls(p.day_pct)}">${pct(p.day_pct, 2)}</div><div class="sub">S&amp;P 500 ${pct(benchDay(), 2)}</div></div>
+        <div class="tile"><div class="label">Since ${new Date(p.start_date + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</div>
+          <div class="value ${cls(since?.port)}">${pct(since?.port)}</div><div class="sub">S&amp;P 500 ${pct(since?.bench)}</div></div>
+        <div class="tile"><div class="label">Gain</div><div class="value ${cls(p.unrealized)}">${signed(p.unrealized)}</div><div class="sub">unrealized · ${signed(p.realized)} realized</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Return vs S&amp;P 500</h2><span class="rng"></span></div>
+        <div class="legend"><span><i style="border-color:var(${color})"></i>${esc(p.name)}</span><span><i class="dash" style="border-color:var(--bench)"></i>S&amp;P 500</span></div>
+        <div class="chartbox"><canvas aria-label="${esc(p.name)} cumulative return compared with the S&P 500"></canvas></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>Holdings</h2>${holdingsTable(p)}</div>
+        <div class="card"><h2>Allocation by sector</h2>${allocation(p)}</div>
+      </div>
+      ${p.closed.length ? `<div class="card" style="margin-top:18px"><h2>Closed positions</h2>${closedTable(p)}</div>` : ""}`;
+    const canvas = el.querySelector("canvas");
+    let chart;
+    const draw = range => {
+      const s = p.series, last = s.dates[s.dates.length - 1];
+      let from = rangeStart(last, range);
+      if (from && from <= s.dates[0]) from = null;
+      const r = rebase(s.dates, s.index, from);
+      const b = rebase(r.dates, benchOn(r.dates), null);
+      if (chart) chart.destroy();
+      chart = lineChart(canvas, r.dates, [
+        { label: p.name, color: css(color), data: r.vals },
+        { label: "S&P 500", color: css("--bench"), dash: true, data: b.vals }]);
+    };
+    el.querySelector(".rng").appendChild(rangeControl(draw, "All"));
+    draw("All");
+  }
+
+  function holdingsTable(p) {
+    if (!p.holdings.length) return `<p class="muted">No open positions.</p>`;
+    return `<div class="tablewrap"><table>
+      <thead><tr><th>Holding</th><th>Shares</th><th>Avg cost</th><th>Price</th><th>Today</th><th>Value</th><th>Weight</th><th>Gain</th></tr></thead>
+      <tbody>${p.holdings.map(h => `<tr>
+        <td><div class="tick">${esc(h.ticker)}</div><div class="name" title="${esc(h.name)}">${esc(h.name)}</div></td>
+        <td>${shares(h.shares)}</td><td>${price(h.avg_cost)}</td><td>${price(h.price)}</td>
+        <td class="${cls(h.day_pct)}">${pct(h.day_pct, 2)}</td><td>${money(h.value)}</td><td>${pct(h.weight).replace("+", "")}</td>
+        <td class="${cls(h.gain)}">${signed(h.gain)}<div class="small">${pct(h.gain_pct)}</div></td></tr>`).join("")}
+      ${p.cash ? `<tr><td><div class="tick">Cash</div></td><td></td><td></td><td></td><td></td><td>${money(p.cash)}</td><td>${pct(p.cash / p.value).replace("+", "")}</td><td></td></tr>` : ""}
+      </tbody></table></div>`;
+  }
+
+  function allocation(p) {
+    if (!p.allocation.length) return `<p class="muted">Nothing to show yet.</p>`;
+    const max = Math.max(...p.allocation.map(a => a.weight || 0));
+    return p.allocation.map(a => `<div class="alloc-row" title="${esc(a.sector)}: ${money(a.value)}">
+      <div>${esc(a.sector)}</div>
+      <div class="alloc-track"><div class="alloc-fill" style="width:${max ? (a.weight / max * 100).toFixed(1) : 0}%"></div></div>
+      <div class="pct">${pct(a.weight).replace("+", "")}</div></div>`).join("");
+  }
+
+  function closedTable(p) {
+    return `<div class="tablewrap"><table>
+      <thead><tr><th>Position</th><th>Shares</th><th>Bought</th><th>Buy price</th><th>Sold</th><th>Sell price</th><th>Realized</th><th>Return</th></tr></thead>
+      <tbody>${p.closed.map(c => `<tr><td><span class="tick">${esc(c.ticker)}</span></td><td>${shares(c.shares)}</td>
+        <td>${esc(c.buy_date)}</td><td>${price(c.buy_price)}</td><td>${esc(c.sell_date)}</td><td>${price(c.sell_price)}</td>
+        <td class="${cls(c.gain)}">${signed(c.gain)}</td><td class="${cls(c.gain_pct)}">${pct(c.gain_pct)}</td></tr>`).join("")}
+      </tbody></table></div>`;
+  }
+
+  function viewResearch(el) {
+    const rs = snap.reports;
+    if (!rs.length) {
+      el.innerHTML = `<div class="card empty"><h2>No research reports yet</h2>
+        <p>Upload a PDF to the <code>reports</code> folder, then add a line for it in <code>data/reports.json</code>.<br>The card will show your rating, target and the upside from today's price.</p></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="reports">${rs.map(r => `<article class="report">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+        <span class="tick">${esc(r.ticker)}</span>${r.rating ? `<span class="badge">${esc(r.rating)}</span>` : ""}</div>
+      <h3>${esc(r.title)}</h3>
+      <div class="small muted">${r.date ? new Date(r.date + "T00:00:00").toLocaleDateString("en-US", {month: "long", day: "numeric", year: "numeric"}) : ""}</div>
+      ${r.summary ? `<div class="small">${esc(r.summary)}</div>` : ""}
+      <div class="facts">
+        <div>Price<b>${price(r.price)}</b></div>
+        <div>Target<b>${r.target != null ? price(r.target) : "—"}</b></div>
+        <div>Upside<b class="${cls(r.upside)}">${pct(r.upside)}</b></div>
+      </div>
+      ${r.since_report != null ? `<div class="small muted">Stock ${pct(r.since_report)} since the report (${price(r.price_at_report)} then)</div>` : ""}
+      ${r.file ? `<a href="${esc(r.file)}" target="_blank" rel="noopener">Read report (PDF) →</a>` : ""}
+    </article>`).join("")}</div>`;
+  }
+
+  function emptyState(el) {
+    el.innerHTML = `<div class="card empty"><h2>Your hub is live. Now add your investments.</h2>
+      <p>On GitHub, open <code>data/portfolios.json</code>, click the pencil icon, and add your portfolios<br>
+      (see <code>data/portfolios.example.json</code> for the format). The site rebuilds about 2 minutes after you save.</p></div>`;
+  }
+
+  // ------------------------------------------------------------ shell
+  function render() {
+    const tabs = [{ id: "overview", label: "Overview" }]
+      .concat(snap.portfolios.map(p => ({ id: p.id, label: p.name })))
+      .concat([{ id: "research", label: "Research" }]);
+    const nav = document.getElementById("tabs");
+    nav.innerHTML = tabs.map(t => `<button role="tab" data-id="${t.id}">${esc(t.label)}</button>`).join("");
+    nav.querySelectorAll("button").forEach(b => b.onclick = () => { location.hash = b.dataset.id; });
+    const show = () => {
+      const id = (location.hash || "#overview").slice(1);
+      const tab = tabs.find(t => t.id === id) || tabs[0];
+      nav.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.id === tab.id));
+      charts.forEach(c => c.destroy()); charts = [];
+      const main = document.getElementById("main");
+      main.innerHTML = (snap.warnings || []).map(w => `<div class="note">${esc(w)}</div>`).join("")
+        + (snap.mock ? `<div class="note info">Test data: these prices are made up.</div>` : "");
+      const el = document.createElement("div"); main.appendChild(el);
+      if (tab.id === "overview") viewOverview(el);
+      else if (tab.id === "research") viewResearch(el);
+      else { const i = snap.portfolios.findIndex(p => p.id === tab.id); viewPortfolio(el, snap.portfolios[i], i); }
+    };
+    window.onhashchange = show;
+    show();
+  }
+
+  fetch("data/snapshot.json?t=" + Date.now()).then(r => r.json()).then(s => {
+    snap = s;
+    const up = document.getElementById("updated");
+    if (!s.generated_at) {
+      up.textContent = "Waiting for the first update";
+      document.getElementById("main").innerHTML = `<div class="card empty"><h2>Waiting for the first price update</h2>
+        <p>On GitHub, go to the <b>Actions</b> tab and click <b>Run workflow</b>. This page fills in about 2 minutes later.</p></div>`;
+      return;
+    }
+    up.textContent = "Updated " + new Date(s.generated_at).toLocaleString("en-US", {
+      timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " ET";
+    render();
+  }).catch(() => { document.getElementById("updated").textContent = "Could not load data"; });
+})();
+</script>
+</body>
+</html>

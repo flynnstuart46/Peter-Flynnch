@@ -1,0 +1,16 @@
+{
+  "portfolios": [
+    {
+      "name": "Long-term",
+      "description": "Core value holdings",
+      "start_date": "2025-01-02",
+      "cash": 1200,
+      "positions": [
+        { "ticker": "AAPL", "shares": 10, "buy_price": 182.50, "buy_date": "2025-01-02" },
+        { "ticker": "MSFT", "shares": 5,  "buy_price": 410.00, "buy_date": "2025-03-14" },
+        { "ticker": "XOM",  "shares": 20, "buy_price": 104.00, "buy_date": "2025-02-03",
+          "sell_price": 118.20, "sell_date": "2025-10-01" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "reports": [
+    {
+      "ticker": "AAPL",
+      "title": "Apple: services carry the multiple",
+      "date": "2025-06-01",
+      "rating": "Buy",
+      "target": 240,
+      "summary": "One or two sentences on the thesis.",
+      "file": "reports/apple-initiation.pdf"
+    }
+  ]
+}
