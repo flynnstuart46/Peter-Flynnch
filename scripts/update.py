@@ -322,6 +322,14 @@ def build_portfolio(p, close, bench_close, meta):
     return {
         "id": p["id"], "name": p["name"], "description": p["description"],
         "start_date": p["start"].date().isoformat(), "cash": cash_now,
+        "trades": sorted(
+            [{"date": l["buy_date"].date().isoformat(), "action": "Buy", "ticker": l["ticker"],
+              "shares": l["shares"], "price": l["buy_price"], "amount": l["shares"] * l["buy_price"]}
+             for l in lots if l["buy_date"] >= start and l["buy_date"] <= last]
+            + [{"date": l["sell_date"].date().isoformat(), "action": "Sell", "ticker": l["ticker"],
+                "shares": l["shares"], "price": l["sell_price"], "amount": l["shares"] * l["sell_price"]}
+               for l in lots if l["sell_date"] is not None and start <= l["sell_date"] <= last],
+            key=lambda t: t["date"], reverse=True)[:10],
         "cash_activity": [{"date": f["date"].date().isoformat(), "amount": f["amount"], "note": f["note"]}
                           for f in reversed(flows)],
         "net_deposits": sum(f["amount"] for f in flows),
